@@ -9,6 +9,7 @@ import warnings
 import aiohttp
 import asyncio
 from time import sleep
+from jsonpath_ng import jsonpath, parse
 import yaml
 from yaml.loader import SafeLoader
 import argparse
@@ -54,9 +55,23 @@ PROJECT_ACRONYM = config['project']
 PROCESS_NAME = config['process-name']
 USER = config['user']
 PWD = config['password']
+THREAD_COUNT = config['thread-count']
 AUTH_DATA = HTTPBasicAuth(USER, PWD)
 INSTANCE_LIMIT = config['instance-limit']
 MODIFIED_AFTER = config['modified-after']
+MODIFIED_BEFORE = config['modified-before']
+BUSINESS_DATA = config['business-data']
+
+
+def invalid_number(number):
+    invalid = False
+    try:
+        num = int(number)
+    except ValueError:
+        invalid = True
+
+    return invalid
+
 
 def build_instance_search_url():
 
@@ -66,6 +81,11 @@ def build_instance_search_url():
     if MODIFIED_AFTER is not None:
         modified_after_str = MODIFIED_AFTER.strftime("%Y-%m-%dT%H:%M:%SZ")
         url = url + "modifiedAfter=" + modified_after_str + "&"
+
+    # If modified after given in config add it here
+    if MODIFIED_BEFORE is not None:
+        modified_before_str = MODIFIED_BEFORE.strftime("%Y-%m-%dT%H:%M:%SZ")
+        url = url + "modifiedBefore=" + modified_before_str + "&"
 
     # Add the process name and project to the URL
     url = url + PROCESS_NAME + PROCESS_SEARCH_PROJECT_FILTER + PROJECT_ACRONYM
@@ -117,16 +137,27 @@ async def get_task_details(session, instance, task_list, event_data, pbar):
                 task_team = task_detail_data['data']['teamDisplayName']
                 task_owner = task_detail_data['data']['owner']
 
-                business_data = task_detail_data['data']['processData']['businessData']
-
-                fullname = ""
-                for element in business_data:
-                    if element['name'] == "Offboarding_Request.fullName":
-                        fullname = element['value']
-                        break
-
+                # Basic info for IPM
                 event = {'processID': instance, 'taskID': task_id,'taskName': task_name, 'startTime': task_start,
-                         'endTime': task_completion, 'team': task_team, 'owner': task_owner, 'fullName' : fullname}
+                         'endTime': task_completion, 'team': task_team, 'owner': task_owner}
+
+                # Add any optional variables
+                if BUSINESS_DATA is not None:
+                    for task_variable in BUSINESS_DATA:
+                        variable_name = task_variable['name']
+                        variable_path = task_variable['path']
+
+                        # Default value to use if no match is found in the task data
+                        variable_value = ""
+
+                        jsonpath_expression = parse(variable_path)
+                        for match in jsonpath_expression.find(task_detail_data):
+                            # Update the default variable
+                            variable_value = match.value
+                            break
+
+                        # Add the value to the event dictionary
+                        event[variable_name] = variable_value
 
                 # Update the even_data list passed from the calling function
                 event_data.append(event)
@@ -164,7 +195,7 @@ async def get_instance_data(instance_list, event_data):
     instance_count = len(instance_list)
     print(f"Processing {instance_count} instances. Fetching task summaries .....")
     # Initialise the connector
-    connector = aiohttp.TCPConnector(limit=1)
+    connector = aiohttp.TCPConnector(limit=THREAD_COUNT)
 
     # Get the task list for each instance
     async with aiohttp.ClientSession(connector=connector) as session:
@@ -178,7 +209,7 @@ async def get_instance_data(instance_list, event_data):
         pbar.close()
 
     # Re-initialise the connector
-    connector = aiohttp.TCPConnector(limit=1)
+    connector = aiohttp.TCPConnector(limit=THREAD_COUNT)
 
     # At this point the bpd_instance_dict variable will be populated as it is passed as a parameter
     # to get_task_summaries() and updated each time we fetch the tasks associated with a process instance
@@ -219,6 +250,23 @@ def main():
     logger.info('GRUMP : Starting')
     print('GRUMP : Starting')
 
+    # Validate config
+    valid_config = True
+    msg_list = ['GRUMP : Invalid Config']
+
+    if invalid_number(THREAD_COUNT):
+        msg_list.append('thread-count is invalid')
+        valid_config = False
+
+    if not valid_config :
+        for msg in msg_list:
+
+            logger.info(msg)
+            print(msg)
+
+        sys.exit("Grump aborting.")
+
+
 
     instance_list = get_instance_list()
     print(f"Found : {len(instance_list)} instances of BPD {PROCESS_NAME} in project {PROJECT_ACRONYM}")
@@ -228,8 +276,20 @@ def main():
 
     data_file = open('data_file.csv', 'w')
     csv_writer = csv.writer(data_file)
+    header = ['processID', 'taskID','Task Name', 'Start', 'End', 'Team', 'Owner']
 
+    # Now add the variables to the header
+    if BUSINESS_DATA is not None:
+        for task_variable in BUSINESS_DATA:
+            variable_name = task_variable['name']
+            header.append(variable_name)
+
+    row_count = 0
     for record in event_data:
+        if row_count == 0:
+            csv_writer.writerow(header)
+            row_count += 1
+
         csv_writer.writerow(record.values())
 
     data_file.close()

@@ -1,0 +1,20 @@
+# Mandatory config
+user: <your userid>
+password: <your password>
+root-url: <your url>
+
+project: <your project acronymn>
+process-name: <process app name>
+thread-count: 1
+
+# Optional config
+instance-limit: #500
+modified-after : #2021-09-13T22:07:33Z
+modified-before : #2021-09-19T22:07:33Z
+business-data:
+   - name: #country
+     path: #$..*.domicileCountry
+   - name: #reason
+     path: #$..*.Offboarding_Request.reasonType
+   - name: #gender
+     path: #$..*.Offboarding_Request.subject.*.gender

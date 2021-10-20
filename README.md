@@ -2,7 +2,7 @@
 A simple utility that uses the BAW REST API's to extract instance data and export it as a CSV.
 
 # Pre-Reqs
-Just a recent version of python3.
+Just a recent version of python3, I'm using Python 3.10.
 
 # Install
 The easiest way is to download and unpack the zip file.
