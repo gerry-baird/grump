@@ -14,13 +14,16 @@ import yaml
 from yaml.loader import SafeLoader
 import argparse
 
-# Default config filename
-config_filename = "config.yaml"
+
 
 parser = argparse.ArgumentParser()
 parser.add_argument("-c", "--config", help="config file name")
 args = parser.parse_args()
 config_filename = args.config
+
+if config_filename is None:
+    # Default config filename
+    config_filename = "config.yaml"
 
 
 
