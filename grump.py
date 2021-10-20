@@ -15,7 +15,7 @@ from yaml.loader import SafeLoader
 import argparse
 
 # Default config filename
-config_filename = "config_private.yaml"
+config_filename = "config.yaml"
 
 parser = argparse.ArgumentParser()
 parser.add_argument("-c", "--config", help="config file name")
