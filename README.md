@@ -28,6 +28,6 @@ Then run the following command :
 `python3 grump.py -c config.yaml`
 
 
-
+# Demonstration
 There is an example of me doing this in a video here : 
 [Grump Video](https://youtu.be/YZXIsKJIy58)
