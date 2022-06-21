@@ -91,8 +91,8 @@ def build_instance_search_url():
         url = url + "modifiedBefore=" + modified_before_str + "&"
 
     # Add the process name and project to the URL
-    #url = url + PROCESS_NAME + PROCESS_SEARCH_PROJECT_FILTER + PROJECT_ACRONYM
-    url = url + PROCESS_NAME
+    url = url + PROCESS_NAME + PROCESS_SEARCH_PROJECT_FILTER + PROJECT_ACRONYM
+    #url = url + PROCESS_NAME
     
     if INSTANCE_LIMIT is not None and INSTANCE_LIMIT > 0:
         url = url + f"&limit={INSTANCE_LIMIT}"
@@ -233,7 +233,9 @@ async def get_instance_data(instance_list, event_data):
     #Just for console formatting
     sleep(0.25)
 
-    async with aiohttp.ClientSession(connector=connector) as session:
+    infinite_timeout = aiohttp.ClientTimeout(total=None, connect=None,
+                                             sock_connect=None, sock_read=None)
+    async with aiohttp.ClientSession(connector=connector, timeout=infinite_timeout) as session:
         async_tasks = []
 
         pbar = tqdm(total=task_count)
