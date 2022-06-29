@@ -122,7 +122,7 @@ def get_instance_list():
         logger.error(message)
         logger.error(e)
 
-# Function to fetch task summary info for a specific instance
+# Function to fetch task details for task id's in the task_list
 async def get_task_details(session, instance, task_list, event_data, pbar):
 
     auth = aiohttp.BasicAuth(login=USER, password=PWD, encoding='utf-8')
@@ -167,7 +167,7 @@ async def get_task_details(session, instance, task_list, event_data, pbar):
                 event_data.append(event)
                 pbar.update(1)
 
-# Function to fetch task summary info for a specific instance
+# Function to fetch task id's for a specific process instance
 async def get_task_summaries(session, instance, bpd_instance_dict, pbar):
 
     logger.debug('Fetching task summaries for bpd instance : ' + instance)
