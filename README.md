@@ -42,3 +42,29 @@ The acronym for the process app is HSS
 
 ![about](./acronym.png)
 
+Here is sample of config to search this process app & process
+```
+user: myuserID
+password: somePassword
+root-url: https://url-to-my.baw-server.appdomain.cloud/bas/
+
+project-acronym: HSS
+process-name: Standard HR Open New Position
+thread-count: 1
+
+# Optional config
+instance-limit: 50
+modified-after : 
+modified-before : 
+
+business-data:
+   - name: date
+     path: $..*.requisition.reqNum
+```
+
+To find the root-url of your server open the Rest API test utility and execute one of the commands. Here I've just
+run IBM Business Automation Workflow REST API's: Process API: Exposed Processes. The complete URL is shown :
+
+![about](./root-url.png)
+
+The root-url used by Grump is everything before the word `rest` as shown by the red arrow.
