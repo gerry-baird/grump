@@ -3,7 +3,7 @@ user: <your userid>
 password: <your password>
 root-url: <your url>
 
-project: <your project acronymn>
+project-acronym: <your project acronym>
 process-name: <process app name>
 thread-count: 1
 

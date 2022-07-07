@@ -54,7 +54,7 @@ TASK_SUMMARY_URL = "rest/bpm/wle/v1/process/"
 TASK_SUMMARY_URL_SUFFIX = "/taskSummary/"
 TASK_DETAIL_URL = "rest/bpm/wle/v1/task/"
 TASK_DETAIL_URL_SUFFIX = "?parts=data"
-PROJECT_ACRONYM = config['project']
+PROJECT_ACRONYM = config['project-acronym']
 PROCESS_NAME = config['process-name']
 USER = config['user']
 PWD = config['password']

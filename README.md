@@ -31,3 +31,14 @@ Then run the following command :
 # Demonstration
 There is an example of me doing this in a video here : 
 [Grump Video](https://youtu.be/YZXIsKJIy58)
+
+# Configuration
+A sample is provided The project acronym is needed to find process instances. In the latest versions of BAW this is found in the "About" window, as shown below.
+Here we are using the Hiring Sample Process App
+
+![about](./about.png)
+
+The acronym for the process app is HSS
+
+![about](./acronym.png)
+
